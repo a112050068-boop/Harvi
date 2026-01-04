@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>哈維 HARVI | Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --electric-blue: #0066FF;
+      }
+      body {
+        background-color: #000;
+        color: #fff;
+        margin: 0;
+        padding: 0;
+        cursor: none;
+        font-family: 'Noto Sans TC', sans-serif;
+        overflow-x: hidden;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        word-break: keep-all;
+        overflow-wrap: anywhere;
+      }
+      * {
+        cursor: none !important;
+      }
+      
+      /* 強化的 X-ray 文字選取視覺效果 */
+      ::selection {
+        background-color: #0066FF !important;
+        color: #FFFFFF !important;
+        /* 文字發光效果，營造 X-光底片感 */
+        text-shadow: 
+          0 0 5px #fff, 
+          0 0 10px #fff, 
+          0 0 20px #0066FF, 
+          0 0 30px #0066FF !important;
+      }
+      ::-moz-selection {
+        background-color: #0066FF !important;
+        color: #FFFFFF !important;
+        text-shadow: 
+          0 0 5px #fff, 
+          0 0 10px #fff, 
+          0 0 20px #0066FF, 
+          0 0 30px #0066FF !important;
+      }
+      
+      ::-webkit-scrollbar {
+        display: none;
+      }
+      body {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        scroll-behavior: smooth;
+      }
+      .rounded-sm { border-radius: 0.1rem !important; }
+      .rounded-md { border-radius: 0.2rem !important; }
+      .rounded-lg { border-radius: 0.25rem !important; }
+      
+      @keyframes x-ray-scan {
+        0% { transform: translateY(-100%); opacity: 0; }
+        50% { opacity: 0.5; }
+        100% { transform: translateY(200%); opacity: 0; }
+      }
+    </style>
+    <!-- 加入 YouTube IFrame Player API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script type="importmap">
+    {
+      "imports": {
+        "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+        "react/": "https://esm.sh/react@^19.2.3/",
+        "react": "https://esm.sh/react@^19.2.3",
+        "react-router-dom": "https://esm.sh/react-router-dom@^7.11.0"
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
