@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { PROJECTS } from '../constants';
 import { Link } from 'react-router-dom';
 import { VideoType, VideoProject } from '../types';
@@ -22,20 +22,7 @@ const VideoPreview: React.FC<{ project: VideoProject }> = ({ project }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
   
-  // 隨機輪播邏輯：若無指定秒數，則隨機選取一個起始點並播放 7 秒
-  const startSeconds = useMemo(() => {
-    if (project.previewStart !== undefined) return project.previewStart;
-    return Math.floor(Math.random() * 30); // 隨機 0-30 秒，避免太後面
-  }, [project.previewStart]);
-
-  const endSeconds = useMemo(() => {
-    if (project.previewEnd !== undefined) return project.previewEnd;
-    return startSeconds + 7; // 預設輪播長度為 7 秒
-  }, [project.previewEnd, startSeconds]);
-
   useEffect(() => {
-    let checkInterval: number;
-
     const initPlayer = () => {
       if (!containerRef.current || !window.YT || !window.YT.Player) return;
 
@@ -55,14 +42,13 @@ const VideoPreview: React.FC<{ project: VideoProject }> = ({ project }) => {
           showinfo: 0,
           iv_load_policy: 3,
           playsinline: 1,
-          start: startSeconds,
+          start: 0, // 始終從頭開始
           disablekb: 1,
           fs: 0,
-          vq: 'hd1080' // 嘗試請求高畫質
+          vq: 'hd1080' // 強制請求 1080p
         },
         events: {
           onReady: (event: any) => {
-            // 強制設定畫質為 1080p (API 盡力而為)
             if (event.target.setPlaybackQuality) {
               event.target.setPlaybackQuality('hd1080');
             }
@@ -75,18 +61,10 @@ const VideoPreview: React.FC<{ project: VideoProject }> = ({ project }) => {
               iframe.style.pointerEvents = 'none';
               setTimeout(() => { iframe.style.opacity = '1'; }, 100);
             }
-
-            // 輪播/循環邏輯
-            checkInterval = window.setInterval(() => {
-              const currentTime = event.target.getCurrentTime();
-              if (currentTime >= endSeconds) {
-                event.target.seekTo(startSeconds, true);
-              }
-            }, 200);
           },
           onStateChange: (event: any) => {
             if (event.data === window.YT.PlayerState.ENDED) {
-              event.target.seekTo(startSeconds, true);
+              event.target.seekTo(0, true);
               event.target.playVideo();
             }
           }
@@ -105,12 +83,11 @@ const VideoPreview: React.FC<{ project: VideoProject }> = ({ project }) => {
     }
 
     return () => {
-      if (checkInterval) window.clearInterval(checkInterval);
       if (playerRef.current && playerRef.current.destroy) {
         playerRef.current.destroy();
       }
     };
-  }, [videoId, startSeconds, endSeconds]);
+  }, [videoId]);
 
   return (
     <div ref={containerRef} className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-black" />

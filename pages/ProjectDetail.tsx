@@ -47,20 +47,19 @@ const Lightbox: React.FC<{ url: string; onClose: () => void }> = ({ url, onClose
         <div className="absolute top-0 left-0 w-full h-[1px] bg-blue-500/50 shadow-[0_0_15px_#0066FF] opacity-0 group-hover:opacity-100 pointer-events-none z-10" 
              style={{ animation: 'x-ray-scan 4s infinite linear' }} />
       </div>
-      
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 font-mono text-[9px] md:text-[10px] tracking-[0.5em] text-white/30 uppercase pointer-events-none whitespace-nowrap">
-        FRAME_ARCHIVE_SECURED // RAW_OUTPUT
-      </div>
     </div>
   );
 };
 
-const DetailVideoPlayer: React.FC<{ project: VideoProject }> = ({ project }) => {
-  const videoId = getYTId(project.ytUrl);
+// 內頁通用自動播放播放器 (支援單獨 ID)
+const DetailVideoPlayer: React.FC<{ project?: VideoProject; videoIdOverride?: string }> = ({ project, videoIdOverride }) => {
+  const videoId = videoIdOverride || (project ? getYTId(project.ytUrl) : '');
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
 
   useEffect(() => {
+    if (!videoId) return;
+
     const initPlayer = () => {
       if (!containerRef.current || !window.YT || !window.YT.Player) return;
 
@@ -77,7 +76,7 @@ const DetailVideoPlayer: React.FC<{ project: VideoProject }> = ({ project }) => 
           showinfo: 0,
           iv_load_policy: 3,
           playsinline: 1,
-          start: 0, // 從頭開始
+          start: 0, 
           disablekb: 1,
           fs: 0,
           vq: 'hd1080'
@@ -151,6 +150,7 @@ const ProjectDetail: React.FC = () => {
       </div>
 
       <div className="space-y-12 md:space-y-24">
+        {/* 主影片展示：點擊另開 YT 分頁 */}
         <a 
           href={mainYtUrl}
           target="_blank"
@@ -169,6 +169,7 @@ const ProjectDetail: React.FC = () => {
                style={{ animation: 'x-ray-scan 3s infinite linear' }} />
         </a>
 
+        {/* 劇照展示 */}
         {project.gallery && project.gallery.length > 0 && (
           <div className="space-y-8 md:space-y-12 pt-8">
             <div className="flex items-center gap-4">
@@ -183,17 +184,48 @@ const ProjectDetail: React.FC = () => {
                   className="group relative aspect-square bg-[#0a0a0a] border border-white/5 overflow-hidden rounded-sm cursor-pointer transition-all duration-700 hover:border-blue-500/60"
                   onClick={() => setActivePhoto(imgUrl)}
                 >
-                  <img 
-                    src={imgUrl} 
-                    alt={`Production Still ${index + 1}`}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover opacity-60 transition-all duration-1000 group-hover:scale-110 group-hover:opacity-100"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="absolute bottom-0 left-0 w-full h-[1px] bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-700 shadow-[0_0_10px_#0066FF]" />
+                  <img src={imgUrl} alt="Still" className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all" />
+                  <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity" />
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* 系列影片 (專門處理 h4 的額外四部影片) */}
+        {urls.length > 1 && (
+          <div className="space-y-10 md:space-y-20 pt-10">
+            <div className="flex items-center gap-4">
+              <div className="h-px w-8 md:w-12 bg-blue-500" />
+              <span className="text-[10px] tracking-[0.4em] text-white/30 uppercase font-mono">Series_Archive_Sequence</span>
+              <div className="h-px flex-1 bg-white/5" />
+            </div>
+            {/* 使用網格排列系列影片 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16">
+              {urls.slice(1).map((url, index) => {
+                const vid = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([^&?\/]{11})/)?.[1];
+                return (
+                  <div key={index} className="space-y-4">
+                    <a 
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="relative block aspect-video bg-black border border-white/5 overflow-hidden rounded-md group transition-all duration-700 hover:border-blue-500/50"
+                    >
+                      <DetailVideoPlayer videoIdOverride={vid} />
+                      <div className="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                         <div className="w-16 h-16 rounded-full border border-white/20 flex items-center justify-center backdrop-blur-sm group-hover:scale-110 group-hover:border-blue-500/50 transition-all duration-500">
+                           <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[12px] border-l-white border-b-[6px] border-b-transparent ml-1" />
+                         </div>
+                      </div>
+                    </a>
+                    <div className="flex items-center gap-4 px-2 opacity-40">
+                      <span className="font-mono text-[9px] text-blue-500 uppercase tracking-widest">Archive_Stream_0{index + 2}</span>
+                      <div className="h-px flex-1 bg-white/10" />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -222,7 +254,7 @@ const ProjectDetail: React.FC = () => {
           </h3>
           <ul className="space-y-4 md:space-y-6 max-h-[800px] overflow-y-auto pr-8 custom-scrollbar">
             {project.crew.map((item, idx) => {
-              const isHeader = item.includes('Cast') || item.includes('Thanks') || item.includes('主演') || item.includes('劇組') || item.includes('━━');
+              const isHeader = item.includes('Cast') || item.includes('主演') || item.includes('劇組') || item.includes('━━');
               return (
                 <li key={idx} className={`text-[11px] md:text-sm flex items-start gap-4 uppercase tracking-[0.05em] transition-all group/item ${isHeader ? 'font-black text-blue-400 mt-10' : 'font-bold text-white/50 hover:text-white'}`}>
                   {!isHeader && <div className="w-1.5 h-1.5 bg-blue-500/40 mt-1.5 flex-shrink-0 group-hover/item:bg-blue-500 transition-colors" />}
@@ -260,7 +292,6 @@ const ProjectDetail: React.FC = () => {
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background: #0066FF;
-          box-shadow: 0 0 10px #0066FF;
         }
       `}</style>
     </div>
