@@ -55,7 +55,6 @@ const Lightbox: React.FC<{ url: string; onClose: () => void }> = ({ url, onClose
   );
 };
 
-// 內頁專用自動播放組件
 const DetailVideoPlayer: React.FC<{ project: VideoProject }> = ({ project }) => {
   const videoId = getYTId(project.ytUrl);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -80,16 +79,22 @@ const DetailVideoPlayer: React.FC<{ project: VideoProject }> = ({ project }) => 
           playsinline: 1,
           start: 0, // 從頭開始
           disablekb: 1,
-          fs: 0
+          fs: 0,
+          vq: 'hd1080'
         },
         events: {
           onReady: (event: any) => {
+            if (event.target.setPlaybackQuality) {
+              event.target.setPlaybackQuality('hd1080');
+            }
             event.target.playVideo();
             event.target.mute();
             const iframe = event.target.getIframe();
             if (iframe) {
-              iframe.classList.add('w-full', 'h-full', 'object-cover', 'scale-[1.1]', 'transition-opacity', 'duration-1000', 'opacity-60');
-              iframe.style.pointerEvents = 'none';
+              iframe.style.opacity = '0';
+              iframe.classList.add('w-full', 'h-full', 'object-cover', 'scale-[1.1]', 'transition-opacity', 'duration-1000');
+              iframe.style.pointerEvents = 'none'; 
+              setTimeout(() => { iframe.style.opacity = '1'; }, 100);
             }
           },
           onStateChange: (event: any) => {
@@ -105,7 +110,11 @@ const DetailVideoPlayer: React.FC<{ project: VideoProject }> = ({ project }) => 
     if (window.YT && window.YT.Player) {
       initPlayer();
     } else {
-      window.onYouTubeIframeAPIReady = initPlayer;
+      const existingCallback = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        if (existingCallback) existingCallback();
+        initPlayer();
+      };
     }
 
     return () => {
@@ -115,7 +124,7 @@ const DetailVideoPlayer: React.FC<{ project: VideoProject }> = ({ project }) => 
     };
   }, [videoId]);
 
-  return <div ref={containerRef} className="absolute inset-0 z-0 pointer-events-none" />;
+  return <div ref={containerRef} className="absolute inset-0 z-0 pointer-events-none bg-black" />;
 };
 
 const ProjectDetail: React.FC = () => {
@@ -146,27 +155,16 @@ const ProjectDetail: React.FC = () => {
           href={mainYtUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className={`relative block w-full mx-auto bg-[#050505] border border-white/5 shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden rounded-md group transition-all duration-700 hover:border-blue-500/50 ${
+          className={`relative block w-full mx-auto bg-black border border-white/5 shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden rounded-md group transition-all duration-700 hover:border-blue-500/50 ${
             project.type === VideoType.VERTICAL ? 'max-w-[280px] xs:max-w-[400px] md:max-w-[500px] aspect-[9/16]' : 'w-full aspect-video'
           }`}
         >
-          {/* 背景縮圖 */}
-          <img 
-            src={project.thumbnail} 
-            alt={project.title} 
-            className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110 opacity-30 group-hover:opacity-10" 
-          />
-          
-          {/* 自動播放影片片段 (從 0:00 開始) */}
           <DetailVideoPlayer project={project} />
-
-          {/* 懸浮播放按鈕裝飾 */}
           <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
             <div className="w-16 h-16 md:w-32 md:h-32 rounded-full border border-white/20 flex items-center justify-center backdrop-blur-sm group-hover:scale-125 group-hover:border-blue-500/50 transition-all duration-500">
                <div className="w-0 h-0 border-t-[8px] md:border-t-[10px] border-t-transparent border-l-[14px] md:border-l-[18px] border-l-white border-b-[8px] md:border-b-[10px] border-b-transparent ml-1.5 md:ml-2 group-hover:border-l-blue-500 transition-colors" />
             </div>
           </div>
-          
           <div className="absolute top-0 left-0 w-full h-[2px] bg-blue-500 shadow-[0_0_30px_#0066FF] opacity-0 group-hover:opacity-100 pointer-events-none z-30"
                style={{ animation: 'x-ray-scan 3s infinite linear' }} />
         </a>
@@ -178,8 +176,6 @@ const ProjectDetail: React.FC = () => {
               <span className="text-[10px] tracking-[0.4em] text-white/30 uppercase font-mono whitespace-nowrap">Archive_Stills</span>
               <div className="h-px flex-1 bg-white/5" />
             </div>
-            
-            {/* 更新網格系統：手機 4 欄，平板 6 欄，電腦 8 欄 */}
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-1 md:gap-2">
               {project.gallery.map((imgUrl, index) => (
                 <div 
@@ -197,35 +193,6 @@ const ProjectDetail: React.FC = () => {
                   <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="absolute bottom-0 left-0 w-full h-[1px] bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-700 shadow-[0_0_10px_#0066FF]" />
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {urls.length > 1 && (
-          <div className="space-y-10 md:space-y-20 pt-10">
-            <div className="flex items-center gap-4">
-              <div className="h-px w-8 md:w-12 bg-blue-500" />
-              <span className="text-[10px] tracking-[0.4em] text-white/30 uppercase font-mono">Series_Extensions</span>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-              {urls.slice(1).map((url, index) => (
-                <a 
-                  key={index} 
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="relative block aspect-video bg-black border border-white/5 overflow-hidden rounded-sm group transition-all duration-500 hover:border-blue-500/30"
-                >
-                  <img 
-                    src={`https://img.youtube.com/vi/${url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([^&?\/]{11})/)?.[1]}/maxresdefault.jpg`} 
-                    alt={`Part ${index + 2}`}
-                    className="w-full h-full object-cover opacity-50 group-hover:opacity-20 transition-all duration-700"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-[9px] md:text-[10px] font-mono border border-white/10 px-4 py-2 group-hover:bg-blue-600 group-hover:border-blue-500 transition-all tracking-[0.4em]">PLAY_PART_0{index + 2}</span>
-                  </div>
-                </a>
               ))}
             </div>
           </div>
@@ -249,7 +216,6 @@ const ProjectDetail: React.FC = () => {
              </p>
           </div>
         </div>
-        
         <div className="lg:border-l border-white/10 lg:pl-24">
           <h3 className="text-[10px] uppercase tracking-[0.5em] text-blue-500 font-black mb-10 flex items-center gap-4">
             <span className="w-2 h-2 bg-blue-500 rotate-45" /> Credits
@@ -269,10 +235,7 @@ const ProjectDetail: React.FC = () => {
       </div>
 
       <div className="mt-32 md:mt-48 flex justify-center">
-        <button 
-          onClick={() => navigate(-1)}
-          className="group flex flex-col items-center gap-8"
-        >
+        <button onClick={() => navigate(-1)} className="group flex flex-col items-center gap-8">
           <div className="w-px h-24 bg-gradient-to-b from-white/10 to-transparent group-hover:h-32 group-hover:from-blue-500 transition-all duration-1000" />
           <span className="font-black tracking-[0.5em] text-[10px] opacity-20 group-hover:opacity-100 group-hover:text-blue-500 transition-all uppercase">
             Exit_Archive

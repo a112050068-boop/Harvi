@@ -1,7 +1,7 @@
 
 import { VideoType, VideoProject } from './types';
 
-// 通用劇照廊道
+// 通用劇照廊道 (保留定義供其他作品使用，若無其他作品使用可後續移除)
 const SHARED_GALLERY = [
   'https://drive.google.com/uc?export=view&id=1h-LwcPHqRkqlZLjshjSQyjVSpFQfT7NG',
   'https://drive.google.com/uc?export=view&id=1f7D7qYwBSeI_Nbm9x16SLt2lcKQdNK1E',
@@ -10,13 +10,6 @@ const SHARED_GALLERY = [
   'https://drive.google.com/uc?export=view&id=1XZ_QQCjNTWcFiNrCqOgjxERiIgWGd3RL',
   'https://drive.google.com/uc?export=view&id=1zPhpaUzhjc41mxjp22SMmEs7byZq3PMV',
   'https://drive.google.com/uc?export=view&id=1COQdLLomEd_HpTGlKhmTtVvV2HIJHAax'
-];
-
-// 《最終章》專屬劇照
-const V3_GALLERY = [
-  'https://drive.google.com/uc?export=view&id=1llcg5Eqf7VvNUUF-uACMqHqffpy9a-iO',
-  'https://drive.google.com/uc?export=view&id=1vS5mvaMKUZ1ahDkQZrCuWnBLiUsJYcov',
-  'https://drive.google.com/uc?export=view&id=1tUjlQagD4vL-6fwxmRFxKn3yU0QMegDn'
 ];
 
 export const PROJECTS: VideoProject[] = [
@@ -60,7 +53,7 @@ export const PROJECTS: VideoProject[] = [
       '特別感謝 Special Thanks',
       '臺北市政府警察局大安分局、臥龍街派出所、國立政治大學、世新大學、世新大學教學資源組'
     ],
-    gallery: SHARED_GALLERY,
+    // gallery 已移除
     previewStart: 5,
     previewEnd: 10
   },
@@ -100,7 +93,7 @@ export const PROJECTS: VideoProject[] = [
       '特別感謝 Special Thanks',
       '臺北市政府警察局大安分局、臥龍街派出所、國立政治大學、世新大學、世新大學教學資源組'
     ],
-    gallery: SHARED_GALLERY,
+    // gallery 已移除
     previewStart: 20,
     previewEnd: 27
   },
@@ -140,7 +133,7 @@ export const PROJECTS: VideoProject[] = [
       '特別感謝 Special Thanks',
       '臺北市政府警察局大安分局、臥龍街派出所、國立政治大學、世新大學、世新大學教學資源組'
     ],
-    gallery: V3_GALLERY,
+    // gallery 已移除
     previewStart: 20,
     previewEnd: 26
   },
