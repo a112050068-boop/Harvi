@@ -51,7 +51,6 @@ const Lightbox: React.FC<{ url: string; onClose: () => void }> = ({ url, onClose
   );
 };
 
-// 內頁通用自動播放播放器 (支援單獨 ID)
 const DetailVideoPlayer: React.FC<{ project?: VideoProject; videoIdOverride?: string }> = ({ project, videoIdOverride }) => {
   const videoId = videoIdOverride || (project ? getYTId(project.ytUrl) : '');
   const containerRef = useRef<HTMLDivElement>(null);
@@ -165,6 +164,9 @@ const ProjectDetail: React.FC = () => {
                <div className="w-0 h-0 border-t-[8px] md:border-t-[10px] border-t-transparent border-l-[14px] md:border-l-[18px] border-l-white border-b-[8px] md:border-b-[10px] border-b-transparent ml-1.5 md:ml-2 group-hover:border-l-blue-500 transition-colors" />
             </div>
           </div>
+          <div className="absolute top-4 right-4 z-30 opacity-0 group-hover:opacity-100 transition-opacity">
+            <span className="px-2 py-1 bg-blue-600 text-[8px] font-black text-white rounded-sm uppercase tracking-tighter">1080p HD</span>
+          </div>
           <div className="absolute top-0 left-0 w-full h-[2px] bg-blue-500 shadow-[0_0_30px_#0066FF] opacity-0 group-hover:opacity-100 pointer-events-none z-30"
                style={{ animation: 'x-ray-scan 3s infinite linear' }} />
         </a>
@@ -200,7 +202,6 @@ const ProjectDetail: React.FC = () => {
               <span className="text-[10px] tracking-[0.4em] text-white/30 uppercase font-mono">Series_Archive_Sequence</span>
               <div className="h-px flex-1 bg-white/5" />
             </div>
-            {/* 使用網格排列系列影片 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16">
               {urls.slice(1).map((url, index) => {
                 const vid = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([^&?\/]{11})/)?.[1];
@@ -254,7 +255,7 @@ const ProjectDetail: React.FC = () => {
           </h3>
           <ul className="space-y-4 md:space-y-6 max-h-[800px] overflow-y-auto pr-8 custom-scrollbar">
             {project.crew.map((item, idx) => {
-              const isHeader = item.includes('Cast') || item.includes('主演') || item.includes('劇組') || item.includes('━━');
+              const isHeader = item.includes('Cast') || item.includes('主演') || item.includes('劇組') || item.includes('━━') || item.includes('顧問') || item.includes('出品');
               return (
                 <li key={idx} className={`text-[11px] md:text-sm flex items-start gap-4 uppercase tracking-[0.05em] transition-all group/item ${isHeader ? 'font-black text-blue-400 mt-10' : 'font-bold text-white/50 hover:text-white'}`}>
                   {!isHeader && <div className="w-1.5 h-1.5 bg-blue-500/40 mt-1.5 flex-shrink-0 group-hover/item:bg-blue-500 transition-colors" />}
